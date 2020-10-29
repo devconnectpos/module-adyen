@@ -1,0 +1,31 @@
+{
+  "name": "connectpos/module-adyen",
+  "description": "ConnectPOS Integrate with Adyen Payment",
+  "type": "magento2-module",
+  "version": "20.10.29",
+  "license": [
+    "OSL-3.0",
+    "AFL-3.0"
+  ],
+  "require": {
+    "magento/module-backend": ">100.0",
+    "magento/module-config": ">100.0",
+    "magento/module-store": ">100.0",
+    "magento/module-customer": ">100.0",
+    "magento/module-sales": ">100.0",
+    "magento/module-quote": ">100.0",
+    "magento/module-checkout": ">100.0",
+    "magento/module-ui": ">100.0",
+    "magento/framework": ">100.0",
+    "adyen/php-api-library": "^1.3.4"
+  },
+  "autoload": {
+    "files": [
+      "registration.php"
+    ],
+    "psr-4": {
+      "SM\\Adyen\\": ""
+    }
+  }
+
+}
