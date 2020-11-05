@@ -133,7 +133,7 @@ class AdyenManagement extends \SM\XRetail\Repositories\Contract\ServiceAbstract
 
         $serviceID = date("dHis");
         $timeStamper = date("Y-m-d") . "T" . date("H:i:s+00:00");
-        $poiId = $this->adyenPaymentHelper->getAdyenPaymentData()['POIID'];
+        $poiId = $this->adyenPaymentHelper->getAdyenPaymentData($data)['POIID'];
         $reference = $data->getData('transaction_id');
 
         $params = [
