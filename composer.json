@@ -2,7 +2,7 @@
   "name": "connectpos/module-adyen",
   "description": "ConnectPOS Integrate with Adyen Payment",
   "type": "magento2-module",
-  "version": "20.11.05",
+  "version": "21.06.01",
   "license": [
     "OSL-3.0",
     "AFL-3.0"
@@ -17,7 +17,7 @@
     "magento/module-checkout": ">100.0",
     "magento/module-ui": ">100.0",
     "magento/framework": ">100.0",
-    "adyen/php-api-library": "^1.3.4"
+    "adyen/php-api-library": "*"
   },
   "autoload": {
     "files": [
