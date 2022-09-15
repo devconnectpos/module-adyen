@@ -12,7 +12,7 @@ class AdyenManagement extends \SM\XRetail\Repositories\Contract\ServiceAbstract
      * @var \Magento\Checkout\Model\Session
      */
     protected $checkoutSession;
-    
+
     public function __construct(
         \Magento\Framework\App\RequestInterface $requestInterface,
         \SM\XRetail\Helper\DataConfig $dataConfig,
@@ -24,7 +24,7 @@ class AdyenManagement extends \SM\XRetail\Repositories\Contract\ServiceAbstract
         $this->adyenPaymentHelper = $adyenPaymentHelper;
         $this->checkoutSession = $checkoutSession;
     }
-    
+
     /**
      * @return mixed
      * @throws \Adyen\AdyenException
@@ -34,7 +34,7 @@ class AdyenManagement extends \SM\XRetail\Repositories\Contract\ServiceAbstract
     {
         $response = null;
         $data = $this->getRequestData();
-        
+
         try {
             $client = $this->adyenPaymentHelper->initAdyenClient($data);
             $service = $this->adyenPaymentHelper->createAdyenPosPaymentService($client);
@@ -43,8 +43,8 @@ class AdyenManagement extends \SM\XRetail\Repositories\Contract\ServiceAbstract
         } catch (\Magento\Framework\Exception\LocalizedException $e) {
             $response['error'] = $e->getMessage();
         }
-        
-        if ($response['error']) {
+
+        if (isset($response['error']) && !empty($response['error'])) {
             return $response;
         }
 
@@ -56,7 +56,7 @@ class AdyenManagement extends \SM\XRetail\Repositories\Contract\ServiceAbstract
         $reference = $data->getData('retail_id');
         $amount = $data->getData('amount');
         $currency = $data->getData('currency');
-    
+
         $request = [
             'SaleToPOIRequest' =>
                 [
@@ -106,7 +106,7 @@ class AdyenManagement extends \SM\XRetail\Repositories\Contract\ServiceAbstract
 
         return $response;
     }
-    
+
     /**
      * @return mixed
      * @throws \Magento\Framework\Exception\LocalizedException
@@ -115,7 +115,7 @@ class AdyenManagement extends \SM\XRetail\Repositories\Contract\ServiceAbstract
     {
         $response = null;
         $data = $this->getRequestData();
-        
+
         try {
             $client = $this->adyenPaymentHelper->initAdyenClient($data);
             $service = $this->adyenPaymentHelper->createAdyenPosPaymentService($client);
@@ -124,7 +124,7 @@ class AdyenManagement extends \SM\XRetail\Repositories\Contract\ServiceAbstract
         } catch (\Magento\Framework\Exception\LocalizedException $e) {
             $response['error'] = $e->getMessage();
         }
-    
+
         if ($response['error']) {
             return $response;
         }
@@ -168,22 +168,22 @@ class AdyenManagement extends \SM\XRetail\Repositories\Contract\ServiceAbstract
         }
         return $response;
     }
-    
+
     public function addSaleToAcquirerData($request, $data)
     {
         $customer = $data['customer'];
         $customerId = $customer['id'];
-        
+
         $saleToAcquirerData = [];
-        
+
         // If customer exists add it into the request to store request
         if (!empty($customerId)) {
             $shopperEmail = $customer['email'];
-            
+
             $saleToAcquirerData['shopperEmail'] = $shopperEmail;
             $saleToAcquirerData['shopperReference'] = (string)$customerId;
         }
-        
+
         $saleToAcquirerDataBase64 = base64_encode(json_encode($saleToAcquirerData));
         $request['SaleToPOIRequest']['PaymentRequest']['SaleData']['SaleToAcquirerData'] = $saleToAcquirerDataBase64;
         return $request;
