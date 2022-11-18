@@ -2,14 +2,16 @@
 
 namespace SM\Adyen\Helper;
 
+use Magento\Framework\DataObject;
+
 class Data
 {
-    
+
     /**
      * @var \SM\Payment\Model\ResourceModel\RetailPayment\CollectionFactory
      */
     protected $paymentCollectionFactory;
-    
+
     /**
      * Data constructor.
      * @param \SM\Payment\Model\ResourceModel\RetailPayment\CollectionFactory $paymentCollectionFactory
@@ -18,7 +20,7 @@ class Data
     {
         $this->paymentCollectionFactory = $paymentCollectionFactory;
     }
-    
+
     /**
      * @return bool
      */
@@ -26,7 +28,7 @@ class Data
     {
         return class_exists('\Adyen\Client');
     }
-    
+
     /**
      * @return false|\Magento\Framework\DataObject
      */
@@ -35,23 +37,29 @@ class Data
         $registerId = isset($data['register_id']) ? $data['register_id'] : 0;
         $collection = $this->paymentCollectionFactory->create()
             ->addFieldToFilter('type', ['eq' => \SM\Payment\Model\RetailPayment::ADYEN]);
-        
+
         if ($collection->getSize() == 0) {
             throw new \Magento\Framework\Exception\LocalizedException(__('Payment not found!'));
         }
-    
+
         $adyenPayment = $collection->getFirstItem();
-        $paymentData = json_decode($adyenPayment->getData('payment_data'), true);
-        
+        $data = $adyenPayment->getData('payment_data');
+
+        if (empty($data)) {
+            return new DataObject();
+        }
+
+        $paymentData = json_decode($data, true);
+
         if (isset($paymentData[$registerId])) {
             return $paymentData[$registerId];
         } elseif (isset($paymentData[0])) {
             return $paymentData[0];
         }
-    
+
         return $paymentData;
     }
-    
+
     /**
      * Initializes and returns Adyen Client and sets the required parameters of it
      *
@@ -62,17 +70,17 @@ class Data
      */
     public function initAdyenClient($data)
     {
-        
+
         if (!$this->checkAdyenSdkInstalled()) {
             throw new \Magento\Framework\Exception\LocalizedException(
                 __('Adyen PHP API Library is not installed. Please run "compose require adyen/php-api-library" to install.')
             );
         }
-        
+
         if (empty($apiKey)) {
             $apiKey = $this->getAdyenPaymentData($data)['api_key'];
         }
-        
+
         $client = $this->createAdyenClient();
         $client->setApplicationName("ConnectPOS");
         $client->setXApiKey($apiKey);
@@ -83,10 +91,10 @@ class Data
         } else {
             $client->setEnvironment(\Adyen\Environment::LIVE, $this->getAdyenPaymentData($data)['live_url_prefix']);
         }
-        
+
         return $client;
     }
-    
+
     /**
      * @param \Adyen\Client $client
      * @return \Adyen\Service\PosPayment
@@ -96,7 +104,7 @@ class Data
     {
         return new \Adyen\Service\PosPayment($client);
     }
-    
+
     /**
      * @return \Adyen\Client
      * @throws \Adyen\AdyenException
