@@ -49,7 +49,7 @@ class Data
             return new DataObject();
         }
 
-        $paymentData = json_decode($data, true);
+        $paymentData = json_decode((string)$data, true);
 
         if (isset($paymentData[$registerId])) {
             return $paymentData[$registerId];
