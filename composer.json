@@ -2,7 +2,7 @@
   "name": "connectpos/module-adyen",
   "description": "ConnectPOS Integrate with Adyen Payment",
   "type": "magento2-module",
-  "version": "22.11.18",
+  "version": "23.01.09",
   "license": [
     "OSL-3.0",
     "AFL-3.0"
