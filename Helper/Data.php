@@ -22,6 +22,41 @@ class Data
     }
 
     /**
+     * Initializes and returns Adyen Client and sets the required parameters of it
+     *
+     * @param $data
+     * @return \Adyen\Client
+     * @throws \Adyen\AdyenException
+     * @throws \Magento\Framework\Exception\LocalizedException
+     */
+    public function initAdyenClient($data)
+    {
+
+        if (!$this->checkAdyenSdkInstalled()) {
+            throw new \Magento\Framework\Exception\LocalizedException(
+                __('Adyen PHP API Library is not installed. Please run "compose require adyen/php-api-library" to install.')
+            );
+        }
+
+        if (empty($apiKey)) {
+            $apiKey = $this->getAdyenPaymentData($data)['api_key'];
+        }
+
+        $client = $this->createAdyenClient();
+        $client->setApplicationName("ConnectPOS");
+        $client->setXApiKey($apiKey);
+
+        if ($this->getAdyenPaymentData($data)
+            && $this->getAdyenPaymentData($data)['environment'] === \Adyen\Environment::TEST) {
+            $client->setEnvironment(\Adyen\Environment::TEST);
+        } else {
+            $client->setEnvironment(\Adyen\Environment::LIVE, $this->getAdyenPaymentData($data)['live_url_prefix']);
+        }
+
+        return $client;
+    }
+
+    /**
      * @return bool
      */
     public function checkAdyenSdkInstalled()
@@ -61,38 +96,12 @@ class Data
     }
 
     /**
-     * Initializes and returns Adyen Client and sets the required parameters of it
-     *
-     * @param $data
      * @return \Adyen\Client
      * @throws \Adyen\AdyenException
-     * @throws \Magento\Framework\Exception\LocalizedException
      */
-    public function initAdyenClient($data)
+    private function createAdyenClient()
     {
-
-        if (!$this->checkAdyenSdkInstalled()) {
-            throw new \Magento\Framework\Exception\LocalizedException(
-                __('Adyen PHP API Library is not installed. Please run "compose require adyen/php-api-library" to install.')
-            );
-        }
-
-        if (empty($apiKey)) {
-            $apiKey = $this->getAdyenPaymentData($data)['api_key'];
-        }
-
-        $client = $this->createAdyenClient();
-        $client->setApplicationName("ConnectPOS");
-        $client->setXApiKey($apiKey);
-
-        if ($this->getAdyenPaymentData($data)
-            && $this->getAdyenPaymentData($data)['environment'] === \Adyen\Environment::TEST) {
-            $client->setEnvironment(\Adyen\Environment::TEST);
-        } else {
-            $client->setEnvironment(\Adyen\Environment::LIVE, $this->getAdyenPaymentData($data)['live_url_prefix']);
-        }
-
-        return $client;
+        return new \Adyen\Client();
     }
 
     /**
@@ -103,14 +112,5 @@ class Data
     public function createAdyenPosPaymentService($client)
     {
         return new \Adyen\Service\PosPayment($client);
-    }
-
-    /**
-     * @return \Adyen\Client
-     * @throws \Adyen\AdyenException
-     */
-    private function createAdyenClient()
-    {
-        return new \Adyen\Client();
     }
 }
